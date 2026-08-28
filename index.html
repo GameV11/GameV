@@ -65,11 +65,9 @@ label{display:block;text-align:right}
 <script>
 
 const URL="https://tdqmiagcwnwfrsplsctd.supabase.co";
-
 const KEY="sb_publishable_txxhEzWBGgGXx_7vm2xiJg_OX5mKBjr";
 
 let selected=null;
-
 
 async function load(){
 
@@ -85,15 +83,13 @@ Authorization:"Bearer "+KEY
 }
 );
 
-if(!r.ok){
-throw new Error(await r.text());
-}
+if(!r.ok) throw new Error(await r.text());
 
 const products=await r.json();
 
 const box=document.getElementById("products");
 
-if(products.length===0){
+if(!products.length){
 box.innerHTML="لا توجد منتجات حالياً";
 return;
 }
@@ -142,9 +138,7 @@ Authorization:"Bearer "+KEY
 }
 );
 
-if(!r.ok){
-throw new Error(await r.text());
-}
+if(!r.ok) throw new Error(await r.text());
 
 const products=await r.json();
 
@@ -208,7 +202,7 @@ document.getElementById("card").value.trim(),
 
 price:selected.price,
 
-payment_method_id:4,
+payment_method_id:5,
 
 status:"pending"
 
@@ -265,10 +259,9 @@ msg.innerText=
 
 });
 
-
 load();
 
 </script>
 
 </body>
-  </html>
+</html>
