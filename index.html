@@ -7,23 +7,25 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b1020;color:white;font-family:Arial}
+body{margin:0;background:#0b1020;color:#fff;font-family:Arial}
 header{background:#121a33;padding:18px;text-align:center;border-bottom:1px solid #263252}
 .logo{font-size:30px;font-weight:bold;color:#6ea8fe}
-.hero{text-align:center;padding:45px 20px}
-.hero h1{font-size:36px}
-.hero span{color:#6ea8fe}
-.hero p{color:#b9c2d0}
-.btn{display:inline-block;background:#356ae6;color:white;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:bold}
+.hero{text-align:center;padding:40px 15px}
+.hero h1{font-size:34px}.hero span{color:#6ea8fe}
 .section{max-width:900px;margin:auto;padding:25px 15px}
 .title{text-align:center;margin-bottom:25px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
-.card{background:#151e38;border:1px solid #263252;border-radius:15px;padding:22px;text-align:center}
-.icon{font-size:45px}
+.card{background:#151e38;border:1px solid #263252;border-radius:15px;padding:20px;text-align:center}
 .card p{color:#b9c2d0}
-.price{color:#6ea8fe;font-size:22px;font-weight:bold;margin:15px}
+.icon{font-size:45px}
+.price{font-size:21px;color:#6ea8fe;font-weight:bold;margin:15px}
+.btn{display:inline-block;background:#356ae6;color:#fff;border:0;padding:11px 20px;border-radius:10px;font-weight:bold;cursor:pointer}
+form{display:none;max-width:500px;margin:20px auto;background:#151e38;padding:25px;border-radius:15px}
+input{width:100%;padding:12px;margin:8px 0 14px;border-radius:8px;border:1px solid #263252;background:#0b1020;color:white}
+label{display:block}
+.msg{text-align:center;margin:15px}
 footer{text-align:center;background:#121a33;padding:20px;margin-top:30px;color:#8994aa}
-@media(max-width:700px){.grid{grid-template-columns:1fr}.hero h1{font-size:30px}}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 
@@ -35,6 +37,154 @@ footer{text-align:center;background:#121a33;padding:20px;margin-top:30px;color:#
 
 <section class="hero">
 <h1>مرحباً بك في <span>GameV</span></h1>
+<p>متجر المنتجات الرقمية</p>
+</section>
+
+<section class="section">
+<h2 class="title">🛒 المنتجات</h2>
+<div class="grid" id="products">جاري تحميل المنتجات...</div>
+</section>
+
+<form id="orderForm">
+<h2>🛍️ إتمام الطلب</h2>
+
+<p id="selectedProduct"></p>
+
+<label>اسمك</label>
+<input id="customerName" required>
+
+<label>وسيلة التواصل</label>
+<input id="customerContact" placeholder="Telegram / Discord / ..." required>
+
+<label>ID أو Username الحساب</label>
+<input id="gameAccount" required>
+
+<label>كود بطاقة شحن Ooredoo</label>
+<input id="cardCode" required>
+
+<button class="btn" type="submit">إرسال الطلب</button>
+
+<div class="msg" id="msg"></div>
+</form>
+
+<footer>
+© 2026 GameV
+</footer>
+
+<script>
+const SUPABASE_URL="https://tdqmiagcwnwfrsplsctd.supabase.co";
+const SUPABASE_KEY="sb_publishable_txxhEzWBGgGXx_7vm2xiJg_OX5mKBjr";
+
+let selected=null;
+
+async function loadProducts(){
+  const box=document.getElementById("products");
+
+  try{
+    const r=await fetch(
+      SUPABASE_URL+"/rest/v1/products?select=*&status=eq.active",
+      {
+        headers:{
+          "apikey":SUPABASE_KEY,
+          "Authorization":"Bearer "+SUPABASE_KEY
+        }
+      }
+    );
+
+    if(!r.ok) throw new Error("خطأ في الاتصال");
+
+    const products=await r.json();
+
+    if(!products.length){
+      box.innerHTML="لا توجد منتجات حالياً";
+      return;
+    }
+
+    box.innerHTML=products.map(p=>`
+      <div class="card">
+        <div class="icon">🎮</div>
+        <h2>${escapeHtml(p.title)}</h2>
+        <p>${escapeHtml(p.description||"منتج رقمي")}</p>
+        <div class="price">${p.price} DT</div>
+        <button class="btn" onclick='buy(${JSON.stringify(p)})'>شراء</button>
+      </div>
+    `).join("");
+
+  }catch(e){
+    box.innerHTML="تعذر تحميل المنتجات";
+    console.error(e);
+  }
+}
+
+function escapeHtml(x){
+  return String(x).replace(/[&<>"']/g,m=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  }[m]));
+}
+
+function buy(product){
+  selected=product;
+
+  document.getElementById("orderForm").style.display="block";
+  document.getElementById("selectedProduct").innerText=
+    product.title+" — "+product.price+" DT";
+
+  document.getElementById("orderForm").scrollIntoView({
+    behavior:"smooth"
+  });
+}
+
+document.getElementById("orderForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+
+  const msg=document.getElementById("msg");
+  msg.innerText="جاري إرسال الطلب...";
+
+  const data={
+    customer_name:document.getElementById("customerName").value,
+    customer_contact:document.getElementById("customerContact").value,
+    game_account:document.getElementById("gameAccount").value,
+    card_code:document.getElementById("cardCode").value,
+    price:selected.price,
+    payment_method_id:4,
+    status:"pending"
+  };
+
+  try{
+    const r=await fetch(
+      SUPABASE_URL+"/rest/v1/orders",
+      {
+        method:"POST",
+        headers:{
+          "apikey":SUPABASE_KEY,
+          "Authorization":"Bearer "+SUPABASE_KEY,
+          "Content-Type":"application/json",
+          "Prefer":"return=minimal"
+        },
+        body:JSON.stringify(data)
+      }
+    );
+
+    if(!r.ok) throw new Error(await r.text());
+
+    msg.innerText="✅ تم إرسال طلبك بنجاح!";
+    e.target.reset();
+
+  }catch(err){
+    console.error(err);
+    msg.innerText="❌ حدث خطأ أثناء إرسال الطلب";
+  }
+});
+
+loadProducts();
+</script>
+
+</body>
+  </html><h1>مرحباً بك في <span>GameV</span></h1>
 <p>متجر حسابات الألعاب والمنتجات الرقمية</p>
 <a class="btn" href="#accounts">تصفح الحسابات</a>
 </section>
