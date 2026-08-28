@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GameV</title>
+
 <style>
 body{margin:0;background:#0b1020;color:white;font-family:Arial}
 header{text-align:center;background:#121a33;padding:20px}
@@ -25,14 +26,20 @@ label{display:block;text-align:right}
 
 <body>
 
-<header><div class="logo">🎮 GameV</div></header>
+<header>
+<div class="logo">🎮 GameV</div>
+</header>
 
 <main>
+
 <h1>🛒 المنتجات</h1>
+
 <div id="products">جاري التحميل...</div>
 
 <form id="form">
+
 <h2>إتمام الطلب</h2>
+
 <p id="product"></p>
 
 <label>اسمك</label>
@@ -47,71 +54,220 @@ label{display:block;text-align:right}
 <label>كود بطاقة شحن Ooredoo</label>
 <input id="card" required>
 
-<button>إرسال الطلب</button>
+<button type="submit">إرسال الطلب</button>
+
 <div id="msg"></div>
+
 </form>
+
 </main>
 
 <script>
+
 const URL="https://tdqmiagcwnwfrsplsctd.supabase.co";
+
 const KEY="sb_publishable_txxhEzWBGgGXx_7vm2xiJg_OX5mKBjr";
-let selected;
+
+let selected=null;
+
 
 async function load(){
-let r=await fetch(URL+"/rest/v1/products?select=*&status=eq.active",
-{headers:{apikey:KEY,Authorization:"Bearer "+KEY}});
-let p=await r.json();
 
-document.getElementById("products").innerHTML=p.map(x=>`
-<div class="card">
-<h2>${x.title}</h2>
-<p>${x.description||""}</p>
-<div class="price">${x.price} DT</div>
-<button onclick="buy(${x.id})">شراء</button>
-</div>`).join("");
+try{
+
+const r=await fetch(
+URL+"/rest/v1/products?select=*&status=eq.active",
+{
+headers:{
+apikey:KEY,
+Authorization:"Bearer "+KEY
+}
+}
+);
+
+if(!r.ok){
+throw new Error(await r.text());
 }
 
+const products=await r.json();
+
+const box=document.getElementById("products");
+
+if(products.length===0){
+box.innerHTML="لا توجد منتجات حالياً";
+return;
+}
+
+box.innerHTML=products.map(x=>`
+
+<div class="card">
+
+<h2>${x.title}</h2>
+
+<p>${x.description||""}</p>
+
+<div class="price">${x.price} DT</div>
+
+<button type="button" onclick="buy(${x.id})">
+شراء
+</button>
+
+</div>
+
+`).join("");
+
+}catch(error){
+
+console.error(error);
+
+document.getElementById("products").innerText=
+"❌ تعذر تحميل المنتجات";
+
+}
+
+}
+
+
 async function buy(id){
-let r=await fetch(URL+"/rest/v1/products?id=eq."+id+"&select=*",
-{headers:{apikey:KEY,Authorization:"Bearer "+KEY}});
-selected=(await r.json())[0];
+
+try{
+
+const r=await fetch(
+URL+"/rest/v1/products?id=eq."+id+"&select=*",
+{
+headers:{
+apikey:KEY,
+Authorization:"Bearer "+KEY
+}
+}
+);
+
+if(!r.ok){
+throw new Error(await r.text());
+}
+
+const products=await r.json();
+
+if(!products.length){
+alert("المنتج غير موجود");
+return;
+}
+
+selected=products[0];
 
 document.getElementById("product").innerText=
 selected.title+" — "+selected.price+" DT";
 
 document.getElementById("form").style.display="block";
-document.getElementById("form").scrollIntoView({behavior:"smooth"});
+
+document.getElementById("form").scrollIntoView({
+behavior:"smooth"
+});
+
+}catch(error){
+
+console.error(error);
+
+alert("حدث خطأ أثناء فتح المنتج");
+
 }
 
-document.getElementById("form").onsubmit=async e=>{
+}
+
+
+document.getElementById("form").addEventListener(
+"submit",
+async function(e){
+
 e.preventDefault();
 
-let data={
-customer_name:name.value,
-customer_contact:contact.value,
-game_account:account.value,
-card_code:card.value,
+if(!selected){
+document.getElementById("msg").innerText=
+"❌ اختر منتجاً أولاً";
+return;
+}
+
+const msg=document.getElementById("msg");
+
+msg.innerText="جاري إرسال الطلب...";
+
+
+const data={
+
+customer_name:
+document.getElementById("name").value.trim(),
+
+customer_contact:
+document.getElementById("contact").value.trim(),
+
+game_account:
+document.getElementById("account").value.trim(),
+
+card_code:
+document.getElementById("card").value.trim(),
+
 price:selected.price,
+
 payment_method_id:4,
+
 status:"pending"
+
 };
 
-let r=await fetch(URL+"/rest/v1/orders",{
+
+try{
+
+const r=await fetch(
+URL+"/rest/v1/orders",
+{
 method:"POST",
+
 headers:{
 apikey:KEY,
 Authorization:"Bearer "+KEY,
 "Content-Type":"application/json",
 Prefer:"return=minimal"
 },
+
 body:JSON.stringify(data)
+
+}
+);
+
+
+if(!r.ok){
+
+const errorText=await r.text();
+
+console.error(errorText);
+
+msg.innerText=
+"❌ خطأ: "+errorText;
+
+return;
+
+}
+
+
+msg.innerText=
+"✅ تم إرسال الطلب بنجاح!";
+
+this.reset();
+
+}catch(error){
+
+console.error(error);
+
+msg.innerText=
+"❌ تعذر الاتصال بـ Supabase";
+
+}
+
 });
 
-msg.innerText=r.ok?"✅ تم إرسال الطلب":"❌ حدث خطأ";
-if(r.ok)e.target.reset();
-};
 
 load();
+
 </script>
 
 </body>
