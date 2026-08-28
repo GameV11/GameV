@@ -1,87 +1,87 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GameV</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GameV</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:white;font-family:Arial}
+header{background:#121a33;padding:18px;text-align:center;border-bottom:1px solid #263252}
+.logo{font-size:30px;font-weight:bold;color:#6ea8fe}
+.hero{text-align:center;padding:45px 20px}
+.hero h1{font-size:36px}
+.hero span{color:#6ea8fe}
+.hero p{color:#b9c2d0}
+.btn{display:inline-block;background:#356ae6;color:white;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:bold}
+.section{max-width:900px;margin:auto;padding:25px 15px}
+.title{text-align:center;margin-bottom:25px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.card{background:#151e38;border:1px solid #263252;border-radius:15px;padding:22px;text-align:center}
+.icon{font-size:45px}
+.card p{color:#b9c2d0}
+.price{color:#6ea8fe;font-size:22px;font-weight:bold;margin:15px}
+footer{text-align:center;background:#121a33;padding:20px;margin-top:30px;color:#8994aa}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.hero h1{font-size:30px}}
+</style>
+</head>
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b1020;
-      color: white;
-    }
+<body>
 
-    header {
-      background: #121a33;
-      padding: 18px;
-      text-align: center;
-      border-bottom: 1px solid #263252;
-    }
+<header>
+<div class="logo">🎮 GameV</div>
+</header>
 
-    .logo {
-      font-size: 30px;
-      font-weight: bold;
-      color: #6ea8fe;
-    }
+<section class="hero">
+<h1>مرحباً بك في <span>GameV</span></h1>
+<p>متجر حسابات الألعاب والمنتجات الرقمية</p>
+<a class="btn" href="#accounts">تصفح الحسابات</a>
+</section>
 
-    .hero {
-      text-align: center;
-      padding: 50px 20px 30px;
-    }
+<section class="section" id="accounts">
+<h2 class="title">⭐ الحسابات المتوفرة</h2>
 
-    .hero h1 {
-      font-size: 38px;
-      margin: 0 0 12px;
-    }
+<div class="grid">
 
-    .hero p {
-      color: #b9c2d0;
-      font-size: 17px;
-    }
+<div class="card">
+<div class="icon">🔥</div>
+<h2>Free Fire</h2>
+<p>حساب Free Fire مميز</p>
+<div class="price">15 DT</div>
+<a class="btn" href="#contact">شراء</a>
+</div>
 
-    .games {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-      max-width: 850px;
-      margin: auto;
-      padding: 20px;
-    }
+<div class="card">
+<div class="icon">⚔️</div>
+<h2>Fortnite</h2>
+<p>حساب Fortnite جاهز</p>
+<div class="price">20 DT</div>
+<a class="btn" href="#contact">شراء</a>
+</div>
 
-    .game {
-      background: #151e38;
-      border: 1px solid #263252;
-      border-radius: 18px;
-      padding: 30px 20px;
-      text-align: center;
-    }
+<div class="card">
+<div class="icon">🎯</div>
+<h2>Call of Duty</h2>
+<p>حساب COD متوفر</p>
+<div class="price">25 DT</div>
+<a class="btn" href="#contact">شراء</a>
+</div>
 
-    .game-icon {
-      font-size: 55px;
-    }
+</div>
+</section>
 
-    .game h2 {
-      margin: 12px 0;
-    }
+<section class="section" id="contact">
+<h2 class="title">📩 تواصل معنا</h2>
+<div class="card">
+<p>لشراء حساب أو الاستفسار، تواصل معنا.</p>
+<a class="btn" href="mailto:example@email.com">تواصل معنا</a>
+</div>
+</section>
 
-    .btn {
-      display: inline-block;
-      padding: 12px 22px;
-      margin-top: 10px;
-      border-radius: 10px;
-      background: #356ae6;
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-    }
+<footer>
+© 2026 GameV
+</footer>
 
-    .accounts {
-      max-width: 850px;
-      margin: 30px auto;
-      padding: 
+</body>
+                                       </html>
