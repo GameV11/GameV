@@ -15,10 +15,11 @@ h1{text-align:center}
 .card,form{background:#151e38;border:1px solid #263252;border-radius:15px;padding:20px;text-align:center}
 .card{min-height:200px}
 .price{color:#6ea8fe;font-size:20px;font-weight:bold;margin:15px}
-button{background:#356ae6;color:white;border:0;padding:12px 20px;border-radius:9px;font-weight:bold}
+button{background:#356ae6;color:white;border:0;padding:12px 20px;border-radius:9px;font-weight:bold;cursor:pointer}
 form{display:none;margin:30px auto;max-width:450px}
 input{display:block;width:100%;padding:12px;margin:10px 0 15px;box-sizing:border-box;background:#0b1020;color:white;border:1px solid #263252;border-radius:8px}
 label{display:block;text-align:right}
+.cardInput{margin-bottom:12px}
 #msg{margin-top:15px}
 @media(max-width:650px){#products{grid-template-columns:1fr}}
 </style>
@@ -51,8 +52,7 @@ label{display:block;text-align:right}
 <label>ID / Username الحساب</label>
 <input id="account" required>
 
-<label>كود بطاقة شحن Ooredoo</label>
-<input id="card" required>
+<div id="cards"></div>
 
 <button type="submit">إرسال الطلب</button>
 
@@ -68,6 +68,7 @@ const URL="https://tdqmiagcwnwfrsplsctd.supabase.co";
 const KEY="sb_publishable_txxhEzWBGgGXx_7vm2xiJg_OX5mKBjr";
 
 let selected=null;
+
 
 async function load(){
 
@@ -152,6 +153,34 @@ selected=products[0];
 document.getElementById("product").innerText=
 selected.title+" — "+selected.price+" DT";
 
+
+/* إنشاء خانات الكروت حسب card_count */
+
+const cardsBox=document.getElementById("cards");
+
+cardsBox.innerHTML="";
+
+const count=Number(selected.card_count)||1;
+
+for(let i=1;i<=count;i++){
+
+cardsBox.innerHTML+=`
+
+<label>كود بطاقة Ooredoo ${i}</label>
+
+<input
+class="cardInput"
+type="text"
+id="card${i}"
+placeholder="أدخل كود البطاقة ${i}"
+required
+>
+
+`;
+
+}
+
+
 document.getElementById("form").style.display="block";
 
 document.getElementById("form").scrollIntoView({
@@ -186,6 +215,23 @@ const msg=document.getElementById("msg");
 msg.innerText="جاري إرسال الطلب...";
 
 
+/* جمع أكواد البطاقات */
+
+const count=Number(selected.card_count)||1;
+
+let cards=[];
+
+for(let i=1;i<=count;i++){
+
+const value=document.getElementById("card"+i).value.trim();
+
+cards.push(value);
+
+}
+
+
+/* إرسال الأكواد في card_code */
+
 const data={
 
 customer_name:
@@ -198,7 +244,7 @@ game_account:
 document.getElementById("account").value.trim(),
 
 card_code:
-document.getElementById("card").value.trim(),
+cards.join(" | "),
 
 price:selected.price,
 
@@ -248,6 +294,8 @@ msg.innerText=
 
 this.reset();
 
+document.getElementById("cards").innerHTML="";
+
 }catch(error){
 
 console.error(error);
@@ -259,9 +307,10 @@ msg.innerText=
 
 });
 
+
 load();
 
 </script>
 
 </body>
-</html>
+  </html>
