@@ -42,7 +42,11 @@ label{display:block;text-align:right}
 <main>
 
 <h1>🛒 المنتجات</h1>
-
+<div style="text-align:center;margin:20px">
+<button onclick="filterProducts('حسابات بيس')">حسابات بيس</button>
+<button onclick="filterProducts('Diamonds Free Fire')">💎 Diamonds Free Fire</button>
+<button onclick="filterProducts('efootball coins')">🪙 efootball coins</button>
+</div>
 <div id="products">جاري التحميل...</div>
 
 <form id="form">
@@ -76,7 +80,7 @@ const URL="https://tdqmiagcwnwfrsplsctd.supabase.co";
 const KEY="sb_publishable_txxhEzWBGgGXx_7vm2xiJg_OX5mKBjr";
 
 let selected=null;
-
+let allProducts=[];
 async function load(){
 
 try{
@@ -93,8 +97,8 @@ Authorization:"Bearer "+KEY
 
 if(!r.ok) throw new Error(await r.text());
 
-const products=await r.json();
-
+allProducts=await r.json();
+const products=allProducts;
 const box=document.getElementById("products");
 
 if(!products.length){
@@ -134,7 +138,37 @@ document.getElementById("products").innerText=
 }
 
 }
+function filterProducts(category){
 
+let products=allProducts.filter(
+x=>x.category===category
+);
+
+const box=document.getElementById("products");
+
+box.innerHTML=products.map(x=>`
+
+<div class="card">
+
+${x.image_url ? `
+<img src="${x.image_url}" alt="${x.title}">
+` : ""}
+
+<h2>${x.title}</h2>
+
+<p>${x.description||""}</p>
+
+<div class="price">${x.price} DT</div>
+
+<button type="button" onclick="buy(${x.id})">
+شراء
+</button>
+
+</div>
+
+`).join("");
+
+  }
 async function buy(id){
 
 try{
